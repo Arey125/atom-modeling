@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -11,15 +13,36 @@ func main() {
 	rl.SetTargetFPS(60)
 
 	f := NewField()
+	drawRb := false
 
 	for !rl.WindowShouldClose() {
+		for {
+			key := rl.GetKeyPressed()
+			if key == 0 {
+				break
+			}
+			if key == rl.KeyM {
+				drawRb = !drawRb
+			}
+
+		}
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.RayWhite)
-		f.Draw()
+
+		if drawRb {
+			f.DrawRB()
+		} else {
+			f.Draw()
+		}
+
+		frameTimeStr := fmt.Sprintf("Frame time: %.3f", rl.GetFrameTime())
+		rl.DrawText(frameTimeStr, 0, 0, 20, rl.White)
 
 		rl.EndDrawing()
 
-		f.Next()
+		for range 2 {
+			f.Next()
+		}
 	}
 }
