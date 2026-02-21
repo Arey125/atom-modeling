@@ -1,6 +1,7 @@
 package main
 
 import (
+	"atom-modeling/internal/field"
 	"fmt"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -12,7 +13,11 @@ func main() {
 
 	rl.SetTargetFPS(60)
 
-	f := NewField()
+	f := field.New(field.Config{
+		Mass:                   50,
+		ReducedPlancksConstant: 1.66,
+	})
+
 	drawRb := false
 
 	for !rl.WindowShouldClose() {
