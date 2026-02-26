@@ -6,6 +6,7 @@ import (
 	"math/cmplx"
 )
 
+
 type Field struct {
 	values [][]complex128
 	prev   [][]complex128
@@ -14,7 +15,7 @@ type Field struct {
 }
 
 const Dx = float64(0.1)
-const Dt = float64(0.3)
+const Dt = float64(0.2)
 
 const Dxc = complex128(Dx)
 const Dtc = complex128(Dt)
@@ -36,8 +37,8 @@ func getInitialCond() [][]complex128 {
 	for i := range values {
 		for j := range values[i] {
 			dist := float64((i-L/2)*(i-L/2) + (j-L/2-L/8)*(j-L/2-L/8))
-			values[i][j] = complex(math.Exp(-float64(dist)/2000), 0) *
-				cmplx.Exp(complex(0, float64(i)*0.01))
+			values[i][j] = complex(math.Exp(-float64(dist)/20), 0) * 
+				cmplx.Exp(complex(0, float64(i)*0.1))
 		}
 	}
 	return values
@@ -53,7 +54,8 @@ func New(config Config) Field {
 		buf:    buf,
 		config: config,
 	}
-	f.normalize()
+	f.values = normalize(f.values)
+	f.prev = normalize(f.prev)
 	return f
 }
 
@@ -89,6 +91,10 @@ func getPotential(i, j int) complex128 {
 	return -complex128(1.) / complex(dist, 0)
 }
 
+func getPotential2(i, j int) complex128 {
+	return complex(0.01, 0)
+}
+
 func (f *Field) Next() {
 	next := f.buf
 
@@ -98,7 +104,7 @@ func (f *Field) Next() {
 	for i := range f.values {
 		for j := range f.values[i] {
 			v := a*f.Laplacian9p(i, j) -
-				b*f.get(i, j)*getPotential(i, j) +
+				b*f.get(i, j)*getPotential2(i, j) +
 				f.prev[i][j]
 
 			next[i][j] = v
@@ -108,7 +114,7 @@ func (f *Field) Next() {
 	f.buf = f.prev
 	f.prev = f.values
 	f.values = next
-	f.normalize()
+	f.values = normalize(f.values)
 }
 
 func squareOfAbs(c complex128) float64 {
@@ -117,12 +123,12 @@ func squareOfAbs(c complex128) float64 {
 	return x*x + y*y
 }
 
-func (f *Field) normalize() {
+func normalize(values [][]complex128) [][]complex128 {
 	c := Dx * Dx
 	sum := float64(0)
-	for i := range f.values {
-		for j := range f.values[i] {
-			sum += squareOfAbs(f.values[i][j]) * c
+	for i := range values {
+		for j := range values[i] {
+			sum += squareOfAbs(values[i][j]) * c
 		}
 	}
 
@@ -131,9 +137,10 @@ func (f *Field) normalize() {
 	}
 	m := 1 / math.Sqrt(sum)
 
-	for i := range f.values {
-		for j := range f.values[i] {
-			f.values[i][j] *= complex(m, 0)
+	for i := range values {
+		for j := range values[i] {
+			values[i][j] *= complex(m, 0)
 		}
 	}
+	return values
 }

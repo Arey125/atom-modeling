@@ -9,7 +9,7 @@ func (f *Field) Draw() {
 	for i := range f.values {
 		for j := range f.values[i] {
 			cF := squareOfAbs(f.values[i][j])
-			c := uint8(min(cF*1000000*Dx*Dx, 255))
+			c := uint8(min(cF/Dx/Dx * 64, 255))
 
 			imageData[i*L+j] = c
 		}
@@ -24,12 +24,13 @@ func (f *Field) DrawRB() {
 	for i := range f.values {
 		for j := range f.values[i] {
 			rF := (real(f.values[i][j]))
-			r := uint8(max(min(rF*15000*Dx, 255), 0))
+			r := uint8(max(min(128 + rF*128/Dx, 255), 0))
 
 			bF := (imag(f.values[i][j]))
-			b := uint8(max(min(bF*15000*Dx, 255), 0))
+			b := uint8(max(min(128 + bF*128/Dx, 255), 0))
 
 			imageData[3*(i*L+j)] = r
+			imageData[3*(i*L+j) + 1] = 128
 			imageData[3*(i*L+j)+2] = b
 		}
 	}

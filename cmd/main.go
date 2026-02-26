@@ -46,7 +46,7 @@ func main() {
 
 		rl.EndDrawing()
 
-		for range 2 {
+		for range 4 {
 			f.Next()
 		}
 	}
